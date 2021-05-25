@@ -1,14 +1,12 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-from data import ADMIN_CONF
+from data.config import ADMIN_CONF
 STATUSES_TEXTS = {"True": "✅Актив.", "False": "❌Выкл"}
 
 
 class AdminKeyboards:
-    def __init__(self, status=None, text=None):
-        result = ADMIN_CONF
-        self.status = result["TEST_PERIOD"]
+    def test_period(self, status=None, text=None):
+        self.status = ADMIN_CONF["TEST_PERIOD"]
         self.text = STATUSES_TEXTS[self.status]
-    def test_period(self):
 
         test_period_keyboard = InlineKeyboardMarkup()
         test_period_keyboard.add(InlineKeyboardButton(text=f"Тестовый период: {self.text}",

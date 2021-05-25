@@ -12,9 +12,9 @@ from datetime import datetime
                            filters.IDFilter(chat_id=data.config.ADMINS))
 async def change_settings(call: types.CallbackQuery):
     if call.data == "✅Актив.":
-        await data.config.edit_data("TEST_PERIOD", "False")
+        data.config.edit_data("TEST_PERIOD", "False")
     else:
-        await data.config.edit_data("TEST_PERIOD", "True")
+        data.config.edit_data("TEST_PERIOD", "True")
 
     keyb = akeyb().test_period()
     await call.message.edit_reply_markup(keyb)

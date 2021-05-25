@@ -7,11 +7,13 @@ from data.messages import MESSAGES
 from utils.db_api.get_data import GetData
 from utils.db_api.add_data import AddData
 from loader import dp
-from data.config import read_admin_conf, update_user_data
-
+from data.config import ADMIN_CONF
+from keyboards.inline import menu
+from keyboards.default import general_menu
+logo = open("data/pics/logo.png", "rb")
 
 def check():
-    return read_admin_conf()["TEST_PERIOD"]
+    return ADMIN_CONF["TEST_PERIOD"]
 
 
 async def add_to_db(message):
@@ -35,24 +37,39 @@ async def add_to_db(message):
     )
 
 
-@dp.message_handler(lambda message: CommandStart() and check() == "True")
+@dp.message_handler(lambda message: message.text.startswith("/start") and check() == "True")
 async def bot_start_with_test_period_preview(message: types.Message):
+    msg = message.from_user
+
     if not GetData().check_user({"userid": message.from_user.id}):
         await add_to_db(message)
 
-    await message.answer(MESSAGES["START_MESSAGE_WITH_TP"])
+    elif GetData().check_user({"userid": message.from_user.id}):
+        data = GetData().get_all_data()
+        test_period_status = data[msg.id]["test_period"]
+        if test_period_status == "accept":
+            data = GetData().get_all_data()
+            subscribe_days = data[msg.id]["accept_days"]
+            await message.answer_photo(caption=MESSAGES["START_MESSAGE_WITHOUT_TP"].format(str(date.today()),
+                                                                                        message.from_user.id,
+                                                                                        message.from_user.username,
+                                                                                        f"({subscribe_days} дней) доступно"
+                                                                                        ), photo=logo,
+                                       reply_markup=general_menu)
+        elif test_period_status != "accept":
+            await message.answer(MESSAGES["START_MESSAGE_WITH_TP"], reply_markup=menu)
 
-@dp.message_handler(lambda message: CommandStart() and check() == "False")
+@dp.message_handler(lambda message: message.text.startswith("/start") and check() == "False")
 async def bot_start_without_test_period_preview(message: types.Message):
     msg = message.from_user
     if not GetData().check_user({"userid": message.from_user.id}):
         await add_to_db(message)
 
-    data = update_user_data()
+    data = GetData().get_all_data()
     subscribe_days = data[msg.id]["accept_days"]
 
-    await message.answer(MESSAGES["START_MESSAGE_WITHOUT_TP"].format(str(date.today()),
+    await message.answer_photo(caption=MESSAGES["START_MESSAGE_WITHOUT_TP"].format(str(date.today()),
                                                                      message.from_user.id,
                                                                      message.from_user.username,
                                                                      f"({subscribe_days} дней) доступно"
-                                                                     ))
+                                                                     ), photo=logo,reply_markup=general_menu)

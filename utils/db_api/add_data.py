@@ -18,3 +18,9 @@ class AddData:
         conn = engine.connect()
         result = conn.execute(insert)
 
+    def update_test_period_data(self, userid):
+        self.user_id = userid
+        update = users.update()
+        update = users.update().where(users.c.userid == userid).values(test_period="accept", accept_days=7)
+        conn = engine.connect()
+        conn.execute(update)

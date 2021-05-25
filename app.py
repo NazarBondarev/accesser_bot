@@ -15,5 +15,4 @@ async def on_startup(dispatcher):
 
 
 if __name__ == '__main__':
-    config.read_admin_conf(); config.update_user_data()
     executor.start_polling(dp, on_startup=on_startup)
